@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cenital — Periodismo de calidad</title>
+    <script>(function(){try{var t=localStorage.getItem('cenital.theme');if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-dark" data-page="">
+
+    <div id="site-header"></div>
+
+    <main class="container home">
+
+        <!-- Hero personalizado: visible sólo con sesión activa, lo rellena app.js -->
+        <div id="personal-hero"></div>
+
+        <!-- Voces destacadas -->
+        <section class="section" aria-labelledby="voces-title">
+            <div class="section-head">
+                <h2 class="section-title" id="voces-title">Voces Destacadas</h2>
+                <a class="link-more" href="descubrir.html">Descubrir todas</a>
+            </div>
+            <div class="voices-grid" id="voices-grid"></div>
+        </section>
+
+        <!-- Banner evento (mismo diseño que Mejores Amigos) -->
+        <section class="section">
+            <div class="friends-event">
+                <div class="chevrons"></div>
+                <div class="fe-inner">
+                    <div class="fe-avatar portrait photo" style="background-image:url('imagenes/Martin%20Kohan.png')" role="img" aria-label="Martín Kohan"></div>
+                    <div>
+                        <h3>Charla con Martín Kohan</h3>
+                        <p>Literatura y política argentina hoy · Jueves 19 de junio · Virtual</p>
+                        <a href="amigos.html" class="btn btn-primary">Sumate</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Especiales -->
+        <section class="section" aria-labelledby="esp-title">
+            <div class="section-head">
+                <h2 class="section-title" id="esp-title">Especiales</h2>
+                <a class="link-more" href="especiales.html">Ver más</a>
+            </div>
+            <div class="grid grid-3">
+                <article class="card-dark">
+                    <div class="card-img bg-cover" style="background-image:url('imagenes/notas/esp-24m.jpg')"></div>
+                    <div class="card-body">
+                        <span class="eyebrow">Marzo 2024</span>
+                        <h3>Todavía entre nosotros</h3>
+                        <p>A 50 años del golpe del 76, lo que sigue vigente de la dictadura.</p>
+                        <a href="especial.html?id=todavia" class="btn btn-primary btn-sm">Ir al especial</a>
+                    </div>
+                </article>
+                <article class="card-dark">
+                    <div class="card-img bg-cover" style="background-image:url('imagenes/notas/esp-vox.jpg')"></div>
+                    <div class="card-body">
+                        <span class="eyebrow">Marzo 2025</span>
+                        <h3>Vox Populi</h3>
+                        <p>12 años de Francisco: el legado espiritual, social y político del papa del nuevo mundo.</p>
+                        <a href="especial.html?id=vox" class="btn btn-primary btn-sm">Ir al especial</a>
+                    </div>
+                </article>
+                <article class="card-dark">
+                    <div class="card-img bg-cover" style="background-image:url('imagenes/notas/esp-leon.jpg')"></div>
+                    <div class="card-body">
+                        <span class="eyebrow">Diciembre 2024</span>
+                        <h3>El año del león</h3>
+                        <p>La primera vuelta al sol del gobierno libertario. Un especial de Lucía Cholakian.</p>
+                        <a href="especial.html?id=leon" class="btn btn-primary btn-sm">Ir al especial</a>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Lo último -->
+        <section class="section" aria-labelledby="ultimo-title">
+            <div class="section-head">
+                <h2 class="section-title" id="ultimo-title">Lo Último</h2>
+                <a class="link-more" href="descubrir.html">Ver más</a>
+            </div>
+
+            <a class="feature-card" href="articulo.html?id=a8" style="text-decoration:none;color:inherit">
+                <div class="feature-img bg-cover" style="background-image:url('imagenes/notas/nota-sistema2.jpg')"></div>
+                <div class="feature-body">
+                    <span class="eyebrow">Sistema 2 · por Pablo Ibáñez</span>
+                    <h3>El mundial de Milei y el juego del calamar de los gobernadores</h3>
+                    <p>Se moderó la caída pero el Gobierno no logra contagiar confianza. Todos contra todos: Karina vs Toto, Patricia vs Sturzenegger.</p>
+                    <span class="date">7 de junio de 2026</span>
+                </div>
+            </a>
+
+            <div class="grid grid-3" id="videos-grid"></div>
+        </section>
+
+        <!-- Banner personalización (contextual) -->
+        <section class="section">
+            <div class="perso-banner" id="perso-banner"></div>
+        </section>
+
+        <!-- Temas (personalizable) -->
+        <section class="section" id="temas" aria-labelledby="temas-title">
+            <div class="section-head">
+                <h2 class="section-title" id="temas-title">Temas</h2>
+                <a class="link-more" href="descubrir.html">Ver más</a>
+            </div>
+            <!-- Barra "Tus temas": señal visual de los intereses activos (rellena app.js) -->
+            <div id="interests-bar"></div>
+            <div class="temas-groups" id="temas-grid"></div>
+        </section>
+
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Voces destacadas con fotos reales
+            var vg = document.getElementById("voices-grid");
+            if (vg) {
+                vg.innerHTML = window.CENITAL_DATA.VOICES.slice(0, 5).map(function (v) {
+                    var bg = v.image ? ' style="background-image:url(\'' + v.image + '\')"' : '';
+                    var cls = v.image ? 'voice-card portrait photo' : 'voice-card portrait';
+                    return '<a class="' + cls + '" href="editoriales.html?id=' + v.id + '"' + bg + '>' +
+                        (v.image ? '' : '<span class="initials">' + window.Cenital.initials(v.name) + '</span>') +
+                        '<span class="voice-name">' + v.name + '</span></a>';
+                }).join("") +
+                '<a class="voice-card more" href="descubrir.html">Conocé más voces &rarr;</a>';
+            }
+
+            // Render de la fila de videos (Lo último)
+            var grid = document.getElementById("videos-grid");
+            if (!grid) return;
+            grid.innerHTML = window.CENITAL_DATA.VIDEOS.map(function (v) {
+                var thumb = v.image
+                    ? 'class="thumb bg-cover" style="background-image:url(\'' + v.image + '\')"'
+                    : 'class="thumb img-mono"';
+                return '<article class="video-card">' +
+                    '<div ' + thumb + '><span class="badge">YouTube</span><span class="play">&#9654;</span></div>' +
+                    '<div class="card-body"><span class="date">' + v.date + '</span>' +
+                    '<h4>' + v.title + '</h4>' +
+                    '<a href="' + v.url + '" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">Ver en YouTube</a></div>' +
+                    '</article>';
+            }).join("");
+        });
+    </script>
+</body>
+</html>

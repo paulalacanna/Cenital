@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Cenital — Perfil</title>
+    <script>(function(){try{var t=localStorage.getItem('cenital.theme');if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-light" data-page="micenital">
+
+    <div id="site-header"></div>
+
+    <div class="cenital-layout">
+
+        <!-- Sidebar -->
+        <aside class="cenital-aside">
+            <div class="aside-user">
+                <span class="avatar" id="aside-avatar">A</span>
+                <div>
+                    <div class="hi">Hola,</div>
+                    <div class="name" id="aside-name">Lector</div>
+                </div>
+            </div>
+            <nav class="aside-nav" aria-label="Secciones de Mi Cenital">
+                <button class="aside-item active" data-panel="perfil">Perfil</button>
+                <button class="aside-item" data-panel="newsletters">Mis newsletters <span class="count" id="newsletters-count">5</span></button>
+                <button class="aside-item" data-panel="voces">Mis voces <span class="count" id="voces-count">0</span></button>
+                <button class="aside-item" data-panel="amigos">Mejores Amigos <span class="dot"></span></button>
+                <button class="aside-item" data-panel="notificaciones">Notificaciones <span class="count count-alert" id="notif-count" hidden>0</span></button>
+            </nav>
+            <div class="aside-logout">
+                <button data-logout>Cerrar sesión</button>
+            </div>
+        </aside>
+
+        <!-- Contenido -->
+        <main class="cenital-main">
+
+            <!-- Panel: Perfil -->
+            <section data-panel-content="perfil">
+                <p class="breadcrumb">Mi Cenital &rsaquo; <b>Perfil</b></p>
+                <h1 class="panel-title">Perfil</h1>
+
+                <div class="profile-id">
+                    <span class="avatar" id="profile-avatar">A</span>
+                    <div>
+                        <div class="name" id="profile-name">Lector</div>
+                        <div class="since" id="profile-since">Lector desde junio 2026</div>
+                    </div>
+                </div>
+
+                <form id="profile-form">
+                    <h2 class="form-group-title">Información personal</h2>
+                    <div class="form-row">
+                        <div class="field">
+                            <label for="p-first">Nombre</label>
+                            <input class="input" type="text" id="p-first">
+                        </div>
+                        <div class="field">
+                            <label for="p-last">Apellido</label>
+                            <input class="input" type="text" id="p-last">
+                        </div>
+                    </div>
+
+                    <hr class="divider">
+
+                    <h2 class="form-group-title">Cuenta</h2>
+                    <div class="field">
+                        <label for="p-email">Email</label>
+                        <input class="input" type="email" id="p-email">
+                    </div>
+
+                    <hr class="divider">
+
+                    <!-- Preferencias que personalizan el Home -->
+                    <h2 class="form-group-title">Personalizá tu experiencia</h2>
+                    <p class="form-hint">Estas preferencias adaptan tu Home: priorizamos tus temas, tus voces y la
+                        cantidad de lectura según tu ritmo.</p>
+
+                    <div class="pref-block">
+                        <label>Temas de interés</label>
+                        <div class="chip-group" id="pref-interests"></div>
+                    </div>
+
+                    <div class="pref-block">
+                        <label>¿Con qué frecuencia leés?</label>
+                        <div class="chip-group" id="pref-frequency"></div>
+                    </div>
+
+                    <div class="pref-block">
+                        <label>Voces que seguís</label>
+                        <div class="chip-group" id="pref-authors"></div>
+                    </div>
+
+                    <div class="panel-actions">
+                        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Panel: Mis newsletters -->
+            <section data-panel-content="newsletters" hidden>
+                <p class="breadcrumb">Mi Cenital &rsaquo; <b>Mis newsletters</b></p>
+                <h1 class="panel-title">Mis newsletters</h1>
+                <p class="form-hint">Administrá a qué newsletters estás suscripto. Las que seguís llegan a tu correo
+                    y se priorizan en tu Home.</p>
+                <div id="newsletters-panel"></div>
+            </section>
+
+            <!-- Paneles "próximamente" -->
+
+            <section data-panel-content="voces" hidden>
+                <h1 class="panel-title">Mis voces</h1>
+                <div id="voces-panel"></div>
+            </section>
+            <!-- Panel: Mejores Amigos -->
+            <section data-panel-content="amigos" hidden>
+                <p class="breadcrumb">Mi Cenital &rsaquo; <b>Mejores Amigos</b></p>
+                <h1 class="panel-title">Mejores Amigos</h1>
+                <div id="amigos-panel"></div>
+            </section>
+            <!-- Panel: Notificaciones -->
+            <section data-panel-content="notificaciones" hidden>
+                <p class="breadcrumb">Mi Cenital &rsaquo; <b>Notificaciones</b></p>
+                <h1 class="panel-title">Notificaciones</h1>
+                <div id="notif-panel"></div>
+            </section>
+        </main>
+    </div>
+
+    <div id="site-footer"></div>
+    <div class="toast" id="toast">Cambios guardados ✓</div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Requiere sesión
+        if (!window.Cenital.Auth.isLoggedIn()) {
+            window.location.href = "login.html";
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            var D = window.CENITAL_DATA;
+            var session = window.Cenital.Auth.get() || { firstName: "Lector", lastName: "", email: "" };
+            var prefs = window.Cenital.Prefs.get();
+            var ini = window.Cenital.initials;
+
+            // Cabecera del usuario
+            var fullInitials = ini(session.firstName + " " + (session.lastName || ""));
+            document.getElementById("aside-avatar").textContent = ini(session.firstName);
+            document.getElementById("profile-avatar").textContent = fullInitials;
+            document.getElementById("aside-name").textContent = session.firstName;
+            document.getElementById("profile-name").textContent = (session.firstName + " " + (session.lastName || "")).trim();
+            document.getElementById("p-first").value = session.firstName || "";
+            document.getElementById("p-last").value = session.lastName || "";
+            document.getElementById("p-email").value = session.email || "";
+
+            /* ---- Pastillas de preferencias ---- */
+            function buildChips(containerId, items, selected, getKey, getLabel, single) {
+                var c = document.getElementById(containerId);
+                c.innerHTML = items.map(function (it) {
+                    var key = getKey(it);
+                    var on = single ? selected === key : selected.indexOf(key) !== -1;
+                    return '<button type="button" class="chip" data-key="' + key +
+                        '" aria-pressed="' + on + '">' + getLabel(it) + '</button>';
+                }).join("");
+                c.querySelectorAll(".chip").forEach(function (chip) {
+                    chip.addEventListener("click", function () {
+                        var pressed = chip.getAttribute("aria-pressed") === "true";
+                        if (single) {
+                            c.querySelectorAll(".chip").forEach(function (x) { x.setAttribute("aria-pressed", "false"); });
+                            chip.setAttribute("aria-pressed", pressed ? "false" : "true");
+                        } else {
+                            chip.setAttribute("aria-pressed", pressed ? "false" : "true");
+                        }
+                    });
+                });
+            }
+
+            buildChips("pref-interests", D.CATEGORIES, prefs.interests,
+                function (c) { return c.key; }, function (c) { return c.label; }, false);
+            buildChips("pref-frequency", D.FREQUENCIES, prefs.readingFrequency,
+                function (c) { return c.key; }, function (c) { return c.label; }, true);
+            buildChips("pref-authors", D.VOICES, prefs.followedAuthors,
+                function (v) { return v.id; }, function (v) { return v.name; }, false);
+
+            function collect(containerId) {
+                return Array.prototype.slice.call(
+                    document.getElementById(containerId).querySelectorAll('.chip[aria-pressed="true"]')
+                ).map(function (c) { return c.dataset.key; });
+            }
+
+            // Contador de voces seguidas
+            function updateVocesCount() {
+                document.getElementById("voces-count").textContent = collect("pref-authors").length;
+            }
+            updateVocesCount();
+            document.getElementById("pref-authors").addEventListener("click", updateVocesCount);
+
+            /* ---- Toast reutilizable ---- */
+            var toast = document.getElementById("toast");
+            function showToast(msg) {
+                toast.textContent = msg;
+                toast.classList.add("show");
+                clearTimeout(showToast._t);
+                showToast._t = setTimeout(function () { toast.classList.remove("show"); }, 2200);
+            }
+
+            /* ---- Guardar ---- */
+            document.getElementById("profile-form").addEventListener("submit", function (e) {
+                e.preventDefault();
+
+                // Actualiza datos de sesión
+                window.Cenital.Auth.login({
+                    firstName: document.getElementById("p-first").value.trim() || session.firstName,
+                    lastName: document.getElementById("p-last").value.trim(),
+                    email: document.getElementById("p-email").value.trim() || session.email
+                });
+
+                // Guarda preferencias
+                window.Cenital.Prefs.set({
+                    interests: collect("pref-interests"),
+                    readingFrequency: collect("pref-frequency")[0] || "",
+                    followedAuthors: collect("pref-authors")
+                });
+
+                showToast("Cambios guardados ✓");
+
+                // Refresca cabecera
+                var name = document.getElementById("p-first").value.trim() || session.firstName;
+                document.getElementById("aside-name").textContent = name;
+            });
+
+            /* ---- Panel "Mis voces": hub de contenido por periodista ---- */
+            // Para cada voz seguida reunimos todo lo suyo: su newsletter (con
+            // estado de suscripción), sus canales (YouTube/podcast según formatos)
+            // y sus notas firmadas. Se puede dejar de seguir desde acá.
+            function renderVoces() {
+                var panel = document.getElementById("voces-panel");
+                var ids = window.Cenital.Prefs.get().followedAuthors;
+                if (!ids.length) {
+                    panel.innerHTML = '<div class="placeholder-panel">Todavía no seguís ninguna voz. ' +
+                        'Elegí tus voces en la sección <b>Perfil</b> o en ' +
+                        '<a href="descubrir.html" style="color:var(--text-link)">Descubrir</a>.</div>';
+                    return;
+                }
+
+                panel.innerHTML = ids.map(function (id) {
+                    var v = D.voiceById(id); if (!v) return "";
+                    var nl = D.NEWSLETTERS.find(function (n) { return n.author === id; });
+                    var notas = D.ARTICLES.filter(function (a) { return a.author === id; });
+                    var ref = nl ? nl.name : v.name;
+
+                    // Newsletter del autor + suscripción
+                    var nlHtml = nl
+                        ? '<div class="vh-row">' +
+                            '<div class="vh-row-main"><span class="vh-kicker">Newsletter</span>' +
+                            '<strong>' + nl.name + '</strong>' +
+                            '<span class="vh-sub">' + D.frequencyLabel(nl.frequency) + '</span></div>' +
+                            '<button type="button" class="btn btn-sm ' + (isSubscribed(nl.id) ? "btn-secondary" : "btn-primary") +
+                            '" data-sub-nl="' + nl.id + '" aria-pressed="' + isSubscribed(nl.id) + '">' +
+                            (isSubscribed(nl.id) ? "✓ Suscripto" : "+ Suscribirme") + '</button>' +
+                        '</div>'
+                        : "";
+
+                    // Canales derivados de los formatos de la voz
+                    var chans = [];
+                    if (v.formats.indexOf("video") !== -1) chans.push('<a class="vh-channel" href="editoriales.html">▶ ' + ref + ' en YouTube</a>');
+                    if (v.formats.indexOf("podcast") !== -1) chans.push('<a class="vh-channel" href="editoriales.html">🎧 Podcast de ' + ref + '</a>');
+                    var chansHtml = chans.length
+                        ? '<div class="vh-section"><span class="vh-kicker">Canales</span><div class="vh-channels">' + chans.join("") + '</div></div>'
+                        : "";
+
+                    // Notas firmadas
+                    var notasHtml = notas.length
+                        ? '<ul class="vh-notas">' + notas.slice(0, 4).map(function (a) {
+                            return '<li><a href="editoriales.html"><span class="vh-nota-title">' + a.title + '</span>' +
+                                '<span class="vh-nota-meta">' + a.readingTime + '</span></a></li>';
+                        }).join("") + '</ul>'
+                        : '<p class="vh-empty">Sin notas firmadas recientes.</p>';
+
+                    return '<section class="voice-hub">' +
+                        '<header class="vh-head">' +
+                            window.Cenital.portrait("vh-avatar", v) +
+                            '<div class="vh-id"><h2>' + v.name + '</h2><p class="vh-role">' + v.role + '</p>' +
+                            '<span class="tag tag-cat-' + v.category + '">' + D.categoryLabel(v.category) + '</span></div>' +
+                            '<button type="button" class="btn btn-secondary btn-sm" data-unfollow="' + id + '">✓ Siguiendo</button>' +
+                        '</header>' +
+                        nlHtml + chansHtml +
+                        '<div class="vh-section"><span class="vh-kicker">Notas firmadas</span>' + notasHtml + '</div>' +
+                    '</section>';
+                }).join("");
+
+                // Suscribir / cancelar el newsletter del autor
+                panel.querySelectorAll("[data-sub-nl]").forEach(function (btn) {
+                    btn.addEventListener("click", function () {
+                        var n = D.newsletterById(btn.dataset.subNl);
+                        var on = toggleNewsletter(btn.dataset.subNl);
+                        showToast(on ? "Te suscribiste a " + n.name + " ✓" : "Cancelaste " + n.name);
+                        renderVoces();
+                    });
+                });
+                // Dejar de seguir (sincroniza las pastillas de Perfil y el contador)
+                panel.querySelectorAll("[data-unfollow]").forEach(function (btn) {
+                    btn.addEventListener("click", function () {
+                        var id = btn.dataset.unfollow;
+                        var v = D.voiceById(id);
+                        var list = window.Cenital.Prefs.get().followedAuthors.slice();
+                        var i = list.indexOf(id);
+                        if (i !== -1) list.splice(i, 1);
+                        window.Cenital.Prefs.set({ followedAuthors: list });
+                        var chip = document.querySelector('#pref-authors .chip[data-key="' + id + '"]');
+                        if (chip) chip.setAttribute("aria-pressed", "false");
+                        updateVocesCount();
+                        showToast("Dejaste de seguir a " + v.name);
+                        renderVoces();
+                    });
+                });
+            }
+
+            /* ---- Panel "Mis newsletters": administrar suscripciones ---- */
+            var newslettersCountEl = document.getElementById("newsletters-count");
+
+            function isSubscribed(id) {
+                return window.Cenital.Prefs.get().subscribedNewsletters.indexOf(id) !== -1;
+            }
+            function updateNewslettersCount() {
+                newslettersCountEl.textContent = window.Cenital.Prefs.get().subscribedNewsletters.length;
+            }
+            // Alterna la suscripción a un newsletter. Devuelve el nuevo estado.
+            // Compartido por los paneles "Mis newsletters" y "Mis voces".
+            function toggleNewsletter(id) {
+                var subs = window.Cenital.Prefs.get().subscribedNewsletters.slice();
+                var i = subs.indexOf(id);
+                var on = i === -1;
+                if (on) subs.push(id); else subs.splice(i, 1);
+                window.Cenital.Prefs.set({ subscribedNewsletters: subs });
+                updateNewslettersCount();
+                return on;
+            }
+
+            function newsletterCard(n, subscribed) {
+                var v = D.voiceById(n.author);
+                var author = v ? v.name : "";
+                return '<article class="nl-card' + (subscribed ? " is-on" : "") + '" data-id="' + n.id + '">' +
+                    window.Cenital.portrait("nl-thumb", v || { name: n.name }) +
+                    '<div class="nl-info">' +
+                        '<div class="nl-head"><h3>' + n.name + '</h3>' +
+                        '<span class="nl-freq">' + D.frequencyLabel(n.frequency) + '</span></div>' +
+                        '<div class="nl-meta"><span class="nl-author">por ' + author + '</span>' +
+                        '<span class="tag tag-cat-' + n.category + '">' + D.categoryLabel(n.category) + '</span></div>' +
+                        '<p class="nl-desc">' + n.desc + '</p>' +
+                    '</div>' +
+                    '<div class="nl-action">' +
+                        '<button type="button" class="btn btn-sm ' + (subscribed ? "btn-secondary" : "btn-primary") +
+                        '" data-toggle-nl="' + n.id + '" aria-pressed="' + subscribed + '">' +
+                        (subscribed ? "✓ Suscripto" : "+ Suscribirme") + '</button>' +
+                    '</div>' +
+                '</article>';
+            }
+
+            function renderNewsletters() {
+                var panel = document.getElementById("newsletters-panel");
+                var subs = D.NEWSLETTERS.filter(function (n) { return isSubscribed(n.id); });
+                var rest = D.NEWSLETTERS.filter(function (n) { return !isSubscribed(n.id); });
+
+                var subsHtml = subs.length
+                    ? '<div class="newsletter-list">' + subs.map(function (n) { return newsletterCard(n, true); }).join("") + '</div>'
+                    : '<div class="placeholder-panel">Todavía no estás suscripto a ningún newsletter. ' +
+                      'Sumá alguno de la lista de abajo.</div>';
+
+                var restHtml = rest.length
+                    ? '<section class="newsletter-section">' +
+                        '<h2 class="form-group-title">Sumá más newsletters</h2>' +
+                        '<div class="newsletter-list">' + rest.map(function (n) { return newsletterCard(n, false); }).join("") + '</div>' +
+                      '</section>'
+                    : "";
+
+                panel.innerHTML =
+                    '<section class="newsletter-section">' +
+                        '<h2 class="form-group-title">Tus suscripciones <span class="count">' + subs.length + '</span></h2>' +
+                        subsHtml +
+                    '</section>' + restHtml;
+
+                panel.querySelectorAll("[data-toggle-nl]").forEach(function (btn) {
+                    btn.addEventListener("click", function () {
+                        var n = D.newsletterById(btn.dataset.toggleNl);
+                        var on = toggleNewsletter(btn.dataset.toggleNl);
+                        showToast(on ? "Te suscribiste a " + n.name + " ✓" : "Cancelaste " + n.name);
+                        renderNewsletters();
+                    });
+                });
+            }
+            updateNewslettersCount();
+
+            /* ---- Panel "Mejores Amigos": eventos exclusivos con gating ---- */
+            function isReserved(id) {
+                return window.Cenital.Prefs.get().reservedEvents.indexOf(id) !== -1;
+            }
+
+            function eventCard(ev, opts) {
+                opts = opts || {};
+                var v = D.voiceById(ev.host);
+                var reserved = !opts.locked && isReserved(ev.id);
+                var action = opts.locked
+                    ? '<span class="ec-lock" aria-hidden="true">🔒</span>'
+                    : '<button type="button" class="btn btn-sm ' + (reserved ? "btn-secondary" : "btn-primary") +
+                      '" data-rsvp="' + ev.id + '" aria-pressed="' + reserved + '">' +
+                      (reserved ? "✓ Reservado" : "Reservar lugar") + '</button>';
+                return '<article class="event-card' + (reserved ? " reserved" : "") + (opts.locked ? " is-locked" : "") + '">' +
+                    window.Cenital.portrait("ec-avatar", v || { name: ev.title }) +
+                    '<div class="ec-body">' +
+                        '<div class="ec-head"><span class="ec-modality">' + ev.modality + '</span>' +
+                        '<span class="ec-spots">' + ev.spots + '</span></div>' +
+                        '<h3>' + ev.title + '</h3>' +
+                        '<p class="ec-when">' + ev.date + '</p>' +
+                        '<p class="ec-desc">' + ev.desc + '</p>' +
+                    '</div>' +
+                    '<div class="ec-action">' + action + '</div>' +
+                '</article>';
+            }
+
+            function renderAmigos() {
+                var panel = document.getElementById("amigos-panel");
+                var events = D.FRIENDS_EVENTS;
+
+                // Estado BLOQUEADO: el lector no es socio de Mejores Amigos.
+                if (!window.Cenital.Member.isMember()) {
+                    panel.innerHTML =
+                        '<div class="amigos-lock">' +
+                            '<span class="lock-ic" aria-hidden="true">🔒</span>' +
+                            '<h2>Una sección solo para Mejores Amigos</h2>' +
+                            '<p class="lock-sub">Sumate a Mejores Amigos y accedé a eventos exclusivos: ' +
+                            'charlas con periodistas, encuentros con la redacción y prioridad de cupos.</p>' +
+                            '<ul class="lock-benefits">' +
+                                '<li>Charlas exclusivas con periodistas y firmas</li>' +
+                                '<li>Encuentros virtuales y presenciales con la redacción</li>' +
+                                '<li>Reserva anticipada y prioridad de cupos</li>' +
+                            '</ul>' +
+                            '<a href="amigos.html" class="btn btn-primary btn-lg">Suscribirme a Mejores Amigos</a>' +
+                        '</div>' +
+                        '<h2 class="form-group-title">Lo que te estás perdiendo</h2>' +
+                        '<div class="event-list">' +
+                            events.map(function (ev) { return eventCard(ev, { locked: true }); }).join("") +
+                        '</div>';
+                    return;
+                }
+
+                // Estado SOCIO: acceso completo a los eventos.
+                var m = window.Cenital.Member.get();
+                panel.innerHTML =
+                    '<div class="amigos-member-bar">' +
+                        '<span class="member-badge">✓ Sos Mejor Amigo' +
+                        (m && m.amount ? ' · $' + Number(m.amount).toLocaleString("es-AR") + '/mes' : '') + '</span>' +
+                        '<a href="amigos.html" class="btn btn-outline btn-sm">Gestionar aporte</a>' +
+                    '</div>' +
+                    '<h2 class="form-group-title">Próximos eventos exclusivos</h2>' +
+                    '<div class="event-list">' +
+                        events.map(function (ev) { return eventCard(ev); }).join("") +
+                    '</div>';
+
+                panel.querySelectorAll("[data-rsvp]").forEach(function (btn) {
+                    btn.addEventListener("click", function () {
+                        var id = btn.dataset.rsvp;
+                        var list = window.Cenital.Prefs.get().reservedEvents.slice();
+                        var i = list.indexOf(id);
+                        var ev = D.friendsEventById(id);
+                        if (i === -1) { list.push(id); showToast("Reservaste tu lugar en «" + ev.title + "» ✓"); }
+                        else { list.splice(i, 1); showToast("Cancelaste tu reserva en «" + ev.title + "»"); }
+                        window.Cenital.Prefs.set({ reservedEvents: list });
+                        renderAmigos();
+                    });
+                });
+            }
+
+            /* ---- Panel "Notificaciones": feed personalizado ---- */
+            // Una notificación de newsletter solo aplica si seguís ese newsletter.
+            // Cualquier grupo puede silenciarse desde las preferencias.
+            function notifApplicable(n) {
+                if (window.Cenital.Prefs.get().mutedNotifGroups.indexOf(n.group) !== -1) return false;
+                if (n.kind === "newsletter") return isSubscribed(n.ref);
+                return true;
+            }
+            function notifUnreadCount() {
+                var read = window.Cenital.Prefs.get().readNotifications;
+                return D.NOTIFICATIONS.filter(function (n) {
+                    return notifApplicable(n) && read.indexOf(n.id) === -1;
+                }).length;
+            }
+            function updateNotifCount() {
+                var c = notifUnreadCount();
+                var el = document.getElementById("notif-count");
+                el.textContent = c;
+                el.hidden = c === 0;
+            }
+
+            function notifGroupLabel(n) {
+                if (n.kind === "newsletter") { var nl = D.newsletterById(n.ref); return nl ? nl.name : "Newsletter"; }
+                return { efemeride: "Efeméride", especial: "Especial", nota: "Destacada" }[n.kind] || "Cenital";
+            }
+            function notifIcon(n) {
+                if (n.kind === "newsletter") {
+                    var nl = D.newsletterById(n.ref);
+                    var v = nl ? D.voiceById(nl.author) : null;
+                    return window.Cenital.portrait("notif-avatar", v || { name: n.title });
+                }
+                var emoji = { efemeride: "📅", especial: "★", nota: "📰" }[n.kind] || "🔔";
+                return '<span class="notif-icon notif-' + n.kind + '" aria-hidden="true">' + emoji + '</span>';
+            }
+            function notifItem(n, read) {
+                return '<a class="notif-item' + (read ? "" : " unread") + '" href="' + n.href + '" data-notif="' + n.id + '">' +
+                    notifIcon(n) +
+                    '<div class="notif-body">' +
+                        '<div class="notif-top"><span class="notif-tag">' + notifGroupLabel(n) + '</span>' +
+                        '<span class="notif-date">' + n.date + '</span></div>' +
+                        '<h3>' + n.title + '</h3><p>' + n.text + '</p>' +
+                    '</div>' +
+                    (read ? '' : '<span class="notif-dot" aria-label="Sin leer"></span>') +
+                '</a>';
+            }
+
+            var notifView = "todas"; // filtro de vista (no se persiste)
+            function renderNotif() {
+                var panel = document.getElementById("notif-panel");
+                var read = window.Cenital.Prefs.get().readNotifications;
+                var muted = window.Cenital.Prefs.get().mutedNotifGroups;
+                var unread = notifUnreadCount();
+
+                var applicable = D.NOTIFICATIONS.filter(notifApplicable);
+                var list = applicable.filter(function (n) { return notifView === "todas" || n.group === notifView; });
+
+                var tabs = [["todas", "Todas"], ["newsletter", "Newsletters"], ["destacado", "Destacadas"]]
+                    .map(function (t) {
+                        return '<button type="button" class="chip" data-notif-view="' + t[0] +
+                            '" aria-pressed="' + (notifView === t[0]) + '">' + t[1] + '</button>';
+                    }).join("");
+
+                var feed = list.length
+                    ? '<div class="notif-list">' + list.map(function (n) { return notifItem(n, read.indexOf(n.id) !== -1); }).join("") + '</div>'
+                    : '<div class="placeholder-panel">No hay notificaciones en esta vista.</div>';
+
+                function muteToggle(group, title, desc) {
+                    var on = muted.indexOf(group) === -1; // activado = recibís este grupo
+                    return '<div class="notif-pref">' +
+                        '<div class="np-text"><strong>' + title + '</strong><span>' + desc + '</span></div>' +
+                        '<button type="button" class="switch" role="switch" aria-checked="' + on + '" data-mute-group="' + group + '"></button>' +
+                    '</div>';
+                }
+
+                panel.innerHTML =
+                    '<div class="notif-head">' +
+                        '<p class="notif-summary">' + (unread ? 'Tenés <strong>' + unread + '</strong> sin leer' : 'Estás al día ✓') + '</p>' +
+                        (unread ? '<button type="button" class="btn btn-outline btn-sm" id="notif-readall">Marcar todas como leídas</button>' : '') +
+                    '</div>' +
+                    '<div class="chip-group notif-filters">' + tabs + '</div>' +
+                    feed +
+                    '<hr class="divider">' +
+                    '<h2 class="form-group-title">Preferencias de notificaciones</h2>' +
+                    muteToggle("newsletter", "Avisos de newsletters que seguís", "Nuevas entregas de tus suscripciones.") +
+                    muteToggle("destacado", "Especiales y efemérides", "Notas destacadas y fechas relevantes de Cenital.");
+
+                // Cambiar de vista
+                panel.querySelectorAll("[data-notif-view]").forEach(function (b) {
+                    b.addEventListener("click", function () { notifView = b.dataset.notifView; renderNotif(); });
+                });
+                // Marcar como leída al abrir (la navegación ocurre después del write)
+                panel.querySelectorAll(".notif-item").forEach(function (a) {
+                    a.addEventListener("click", function () {
+                        var id = a.dataset.notif;
+                        var r = window.Cenital.Prefs.get().readNotifications.slice();
+                        if (r.indexOf(id) === -1) { r.push(id); window.Cenital.Prefs.set({ readNotifications: r }); }
+                    });
+                });
+                // Marcar todas como leídas
+                var readall = document.getElementById("notif-readall");
+                if (readall) readall.addEventListener("click", function () {
+                    var ids = D.NOTIFICATIONS.filter(notifApplicable).map(function (n) { return n.id; });
+                    window.Cenital.Prefs.set({ readNotifications: ids });
+                    updateNotifCount(); renderNotif();
+                });
+                // Silenciar / activar grupos
+                panel.querySelectorAll("[data-mute-group]").forEach(function (sw) {
+                    sw.addEventListener("click", function () {
+                        var g = sw.dataset.muteGroup;
+                        var m = window.Cenital.Prefs.get().mutedNotifGroups.slice();
+                        var i = m.indexOf(g);
+                        if (i === -1) m.push(g); else m.splice(i, 1);
+                        window.Cenital.Prefs.set({ mutedNotifGroups: m });
+                        updateNotifCount(); renderNotif();
+                    });
+                });
+
+                updateNotifCount();
+            }
+            updateNotifCount();
+
+            /* ---- Navegación entre paneles ---- */
+            document.querySelectorAll(".aside-item").forEach(function (btn) {
+                btn.addEventListener("click", function () {
+                    var target = btn.dataset.panel;
+                    document.querySelectorAll(".aside-item").forEach(function (b) { b.classList.remove("active"); });
+                    btn.classList.add("active");
+                    document.querySelectorAll("[data-panel-content]").forEach(function (s) {
+                        s.hidden = s.dataset.panelContent !== target;
+                    });
+                    if (target === "voces") renderVoces();
+                    if (target === "newsletters") renderNewsletters();
+                    if (target === "amigos") renderAmigos();
+                    if (target === "notificaciones") renderNotif();
+                });
+            });
+        });
+    </script>
+</body>
+</html>

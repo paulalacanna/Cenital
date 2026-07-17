@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mejores Amigos — Cenital</title>
+    <script>(function(){try{var t=localStorage.getItem('cenital.theme');if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="amigos">
+
+    <div id="site-header"></div>
+
+    <main class="container">
+
+        <section class="hero">
+            <h1>Mejores <span class="accent">Amigos</span></h1>
+            <p class="lead">+8.000 lectores. Sin pauta, sin paywalls, sin presiones.</p>
+            <div id="member-status" style="margin-top:var(--space-16)"></div>
+        </section>
+
+        <!-- Pilares -->
+        <section class="section" style="padding-top:0">
+            <div class="pillars-grid">
+                <div class="pillar">
+                    <h3>Sin Pauta</h3>
+                    <div class="pillar-box">Periodismo sin presiones comerciales ni políticas.</div>
+                </div>
+                <div class="pillar">
+                    <h3>Tiempo para Investigar</h3>
+                    <div class="pillar-box">Notas que no compiten con la primicia.</div>
+                </div>
+                <div class="pillar">
+                    <h3>Encuentros con la redacción</h3>
+                    <div class="pillar-box">Charlas con las firmas y el equipo del medio.</div>
+                </div>
+                <div class="pillar">
+                    <h3>Que siga pasando</h3>
+                    <div class="pillar-box">Un proyecto sostenido por sus lectores, no por anunciantes.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Evento destacado -->
+        <section class="section">
+            <div class="friends-event">
+                <div class="chevrons"></div>
+                <div class="fe-inner">
+                    <div class="fe-avatar portrait photo" style="background-image:url('imagenes/Martin%20Kohan.png')" role="img" aria-label="Martín Kohan"></div>
+                    <div>
+                        <h3>Charla con Martín Kohan</h3>
+                        <p>Literatura y política argentina hoy · Jueves 19 de junio · Virtual</p>
+                        <button type="button" class="btn btn-primary" data-join>Sumate</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Periodistas e investigadores que sostienen los lectores -->
+        <section class="section" aria-labelledby="firmas-title">
+            <div class="section-head">
+                <h2 class="section-title" id="firmas-title">Periodistas e investigadores que hacés posibles</h2>
+                <a class="link-more" href="descubrir.html">Conocelos</a>
+            </div>
+            <div class="voices-grid" id="amigos-voices"></div>
+        </section>
+
+        <!-- Aporte -->
+        <section class="section" style="text-align:center">
+            <h2 class="section-title" style="margin-bottom:var(--space-32)">Hacé que <span class="accent">Cenital</span> siga existiendo</h2>
+            <div class="support-amounts">
+                <button class="btn btn-primary btn-amount" data-join data-amount="6600">$6.600</button>
+                <button class="btn btn-primary btn-amount" data-join data-amount="8000">$8.000</button>
+                <button class="btn btn-primary btn-amount" data-join data-amount="10300">$10.300</button>
+                <button class="btn btn-primary btn-amount" data-join data-amount="custom">Monto libre</button>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="site-footer"></div>
+
+    <!-- Overlay de pago para unirse a Mejores Amigos -->
+    <div class="modal-overlay" id="join-modal" role="dialog" aria-modal="true" aria-labelledby="join-title">
+        <div class="modal">
+            <div class="modal-head">
+                <h2 id="join-title">Unite a Mejores Amigos</h2>
+                <button class="modal-close" type="button" data-modal-close aria-label="Cerrar">&times;</button>
+            </div>
+
+            <!-- Estado: requiere iniciar sesión -->
+            <div class="modal-state" data-state="gate">
+                <p class="modal-sub">Para sumarte a Mejores Amigos necesitás tener una cuenta e iniciar sesión.</p>
+                <div class="gate-actions">
+                    <a href="login.html" class="btn btn-primary btn-block btn-lg">Iniciar sesión</a>
+                    <a href="crear-cuenta.html" class="btn btn-ghost-light btn-block">Crear una cuenta</a>
+                </div>
+            </div>
+
+            <!-- Estado: formulario de pago -->
+            <form class="modal-state" data-state="pay" id="pay-form" novalidate>
+                <p class="modal-sub">Elegí tu aporte mensual y completá los datos de pago para unirte.</p>
+
+                <span class="modal-section-label">Monto mensual</span>
+                <div class="amount-options" id="modal-amounts">
+                    <button type="button" class="amount-opt" data-amount="6600">$6.600</button>
+                    <button type="button" class="amount-opt" data-amount="8000">$8.000</button>
+                    <button type="button" class="amount-opt" data-amount="10300">$10.300</button>
+                    <button type="button" class="amount-opt" data-amount="custom">Otro</button>
+                </div>
+
+                <div class="field" id="custom-wrap" style="display:none">
+                    <label for="custom-amount">Monto libre (ARS)</label>
+                    <input class="input" type="number" id="custom-amount" min="500" step="100" placeholder="Ej: 15000">
+                    <span class="field-error">Ingresá un monto válido (mínimo $500).</span>
+                </div>
+
+                <div class="field" id="f-name">
+                    <label for="card-name">Nombre en la tarjeta</label>
+                    <input class="input" id="card-name" autocomplete="cc-name">
+                    <span class="field-error">Ingresá el nombre que figura en la tarjeta.</span>
+                </div>
+
+                <div class="field" id="f-number">
+                    <label for="card-number">Número de tarjeta</label>
+                    <input class="input" id="card-number" inputmode="numeric" placeholder="0000 0000 0000 0000" autocomplete="cc-number" maxlength="19">
+                    <span class="field-error">Ingresá los 16 dígitos de la tarjeta.</span>
+                </div>
+
+                <div class="form-row">
+                    <div class="field" id="f-exp">
+                        <label for="card-exp">Vencimiento</label>
+                        <input class="input" id="card-exp" placeholder="MM/AA" maxlength="5" autocomplete="cc-exp">
+                        <span class="field-error">Formato MM/AA.</span>
+                    </div>
+                    <div class="field" id="f-cvc">
+                        <label for="card-cvc">CVC</label>
+                        <input class="input" id="card-cvc" inputmode="numeric" placeholder="123" maxlength="4" autocomplete="cc-csc">
+                        <span class="field-error">3 o 4 dígitos.</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block btn-lg" id="pay-submit">Pagar y unirme</button>
+            </form>
+
+            <!-- Estado: éxito -->
+            <div class="modal-state" data-state="success">
+                <div class="pay-success">
+                    <div class="check">&check;</div>
+                    <h2>¡Ya sos Mejor Amigo!</h2>
+                    <p id="success-detail">Gracias por tu aporte.</p>
+                    <button type="button" class="btn btn-primary" data-modal-close>Listo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var Auth = window.Cenital.Auth;
+            var modal = document.getElementById("join-modal");
+
+            // Carrusel de periodistas/investigadores (Voces de Cenital).
+            // Reutiliza el estilo del carrusel de la home para scroll fluido en mobile.
+            var av = document.getElementById("amigos-voices");
+            if (av && window.CENITAL_DATA) {
+                av.innerHTML = window.CENITAL_DATA.VOICES.map(function (v) {
+                    var bg = v.image ? ' style="background-image:url(\'' + v.image + '\')"' : '';
+                    var cls = v.image ? 'voice-card portrait photo' : 'voice-card portrait';
+                    return '<a class="' + cls + '" href="editoriales.html"' + bg + '>' +
+                        (v.image ? '' : '<span class="initials">' + window.Cenital.initials(v.name) + '</span>') +
+                        '<span class="voice-name">' + v.name + '</span></a>';
+                }).join("") +
+                '<a class="voice-card more" href="descubrir.html">Conocé más voces &rarr;</a>';
+            }
+            var selectedAmount = 8000; // aporte sugerido por defecto
+
+            function showState(name) {
+                modal.querySelectorAll(".modal-state").forEach(function (s) {
+                    s.classList.toggle("active", s.dataset.state === name);
+                });
+            }
+            function openModal() { modal.classList.add("open"); }
+            function closeModal() { modal.classList.remove("open"); }
+
+            function selectAmount(value) {
+                selectedAmount = value;
+                modal.querySelectorAll(".amount-opt").forEach(function (b) {
+                    b.setAttribute("aria-pressed", String(b.dataset.amount === String(value) ||
+                        (value === "custom" && b.dataset.amount === "custom")));
+                });
+                document.getElementById("custom-wrap").style.display = (value === "custom") ? "block" : "none";
+            }
+
+            // Abrir: requiere sesión. Si no, mostramos el estado "gate".
+            function join(amountData) {
+                if (!Auth.isLoggedIn()) {
+                    showState("gate");
+                    openModal();
+                    return;
+                }
+                showState("pay");
+                if (amountData === "custom") selectAmount("custom");
+                else selectAmount(amountData ? Number(amountData) : 8000);
+                openModal();
+            }
+
+            document.querySelectorAll("[data-join]").forEach(function (btn) {
+                btn.addEventListener("click", function () { join(btn.dataset.amount); });
+            });
+            modal.querySelectorAll("[data-modal-close]").forEach(function (b) {
+                b.addEventListener("click", closeModal);
+            });
+            modal.addEventListener("click", function (e) { if (e.target === modal) closeModal(); });
+            document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeModal(); });
+
+            modal.querySelectorAll(".amount-opt").forEach(function (b) {
+                b.addEventListener("click", function () {
+                    selectAmount(b.dataset.amount === "custom" ? "custom" : Number(b.dataset.amount));
+                });
+            });
+
+            /* ---- Validación y pago simulado ---- */
+            var form = document.getElementById("pay-form");
+            function setErr(id, on) { document.getElementById(id).classList.toggle("has-error", on); }
+
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+                var number = document.getElementById("card-number").value.replace(/\s+/g, "");
+                var name = document.getElementById("card-name").value.trim();
+                var exp = document.getElementById("card-exp").value.trim();
+                var cvc = document.getElementById("card-cvc").value.trim();
+
+                var amountValue = selectedAmount;
+                var customOk = true;
+                if (selectedAmount === "custom") {
+                    amountValue = parseInt(document.getElementById("custom-amount").value, 10);
+                    customOk = amountValue >= 500;
+                    setErr("custom-wrap", !customOk);
+                }
+
+                var checks = {
+                    "f-name": name.length > 1,
+                    "f-number": /^\d{16}$/.test(number),
+                    "f-exp": /^(0[1-9]|1[0-2])\/\d{2}$/.test(exp),
+                    "f-cvc": /^\d{3,4}$/.test(cvc)
+                };
+                Object.keys(checks).forEach(function (id) { setErr(id, !checks[id]); });
+
+                var ok = customOk && Object.keys(checks).every(function (id) { return checks[id]; });
+                if (!ok) return;
+
+                var btn = document.getElementById("pay-submit");
+                btn.classList.add("is-loading");
+                setTimeout(function () {
+                    btn.classList.remove("is-loading");
+                    localStorage.setItem("cenital.member", JSON.stringify({ amount: amountValue, since: new Date().toISOString() }));
+                    document.getElementById("success-detail").textContent =
+                        "Tu aporte mensual de $" + Number(amountValue).toLocaleString("es-AR") + " quedó confirmado.";
+                    showState("success");
+                    renderMemberStatus();
+                }, 900);
+            });
+
+            // Formateo suave del número de tarjeta (grupos de 4)
+            document.getElementById("card-number").addEventListener("input", function (e) {
+                var v = e.target.value.replace(/\D/g, "").slice(0, 16);
+                e.target.value = v.replace(/(.{4})/g, "$1 ").trim();
+            });
+            document.getElementById("card-exp").addEventListener("input", function (e) {
+                var v = e.target.value.replace(/\D/g, "").slice(0, 4);
+                e.target.value = v.length > 2 ? v.slice(0, 2) + "/" + v.slice(2) : v;
+            });
+
+            /* ---- Estado de socio en la página ---- */
+            function getMember() {
+                try { return JSON.parse(localStorage.getItem("cenital.member")); } catch (e) { return null; }
+            }
+            function renderMemberStatus() {
+                var m = getMember();
+                var box = document.getElementById("member-status");
+                if (m && Auth.isLoggedIn()) {
+                    box.innerHTML = '<span class="member-badge">&check; Ya sos Mejor Amigo · $' +
+                        Number(m.amount).toLocaleString("es-AR") + '/mes</span>';
+                } else {
+                    box.innerHTML = "";
+                }
+            }
+            renderMemberStatus();
+        });
+    </script>
+</body>
+</html>

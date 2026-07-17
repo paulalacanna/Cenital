@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Descubrir — Cenital</title>
+    <script>(function(){try{var t=localStorage.getItem('cenital.theme');if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-dark" data-page="descubrir">
+
+    <div id="site-header"></div>
+
+    <main class="container" id="discover-root">
+
+        <section class="hero">
+            <h1>Las voces de <span class="accent">Cenital</span></h1>
+            <p class="lead">Cada editorial tiene su autor, un tono y un universo propio. Elegí a quién querés seguir.</p>
+        </section>
+
+        <!-- Panel de filtros -->
+        <section class="section" style="padding-top:0">
+            <div class="filter-panel">
+                <div class="filter-group">
+                    <span class="filter-label">Por tema</span>
+                    <div class="pill-row" id="filter-categories"></div>
+                </div>
+
+                <hr class="filter-divider">
+
+                <div class="filter-cols">
+                    <div class="filter-group">
+                        <span class="filter-label">Frecuencia</span>
+                        <div class="pill-row" id="filter-frequencies"></div>
+                    </div>
+                    <div class="filter-group">
+                        <span class="filter-label">Formato</span>
+                        <div class="pill-row" id="filter-formats"></div>
+                    </div>
+                </div>
+
+                <hr class="filter-divider">
+
+                <div class="filter-footer">
+                    <span class="results-count" id="discover-count"></span>
+                    <button type="button" class="btn-clear" id="discover-clear">Limpiar filtros</button>
+                    <div class="search-wrap">
+                        <input type="search" class="search-input" id="discover-search"
+                               placeholder="Buscar voz por nombre" aria-label="Buscar voz por nombre">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Resultados -->
+        <section class="section" style="padding-top:0">
+            <div class="discover-carousel" id="discover-results"></div>
+        </section>
+
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script src="data.js"></script>
+    <!-- Pastillas de filtro: se construyen de forma síncrona antes de app.js
+         para que el inicializador del filtro las encuentre disponibles. -->
+    <script>
+        (function () {
+            var D = window.CENITAL_DATA;
+            function pills(containerId, group, items) {
+                document.getElementById(containerId).innerHTML = items.map(function (it) {
+                    return '<button type="button" class="pill" data-filter="' + group +
+                        '" data-value="' + it.key + '" aria-pressed="false">' + it.label + '</button>';
+                }).join("");
+            }
+            pills("filter-categories", "categories", D.CATEGORIES);
+            pills("filter-frequencies", "frequencies", D.FREQUENCIES);
+            pills("filter-formats", "formats", D.FORMATS);
+        })();
+    </script>
+    <script src="app.js"></script>
+</body>
+</html>

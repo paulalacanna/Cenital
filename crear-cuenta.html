@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creá tu cuenta — Cenital</title>
+    <script>document.documentElement.setAttribute('data-theme','light');</script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="auth-page">
+
+    <main class="auth-card">
+        <a href="index.html" class="logo auth-logo" aria-label="Cenital, inicio">
+            <img src="imagenes/Cenital.svg" alt="Cenital">
+        </a>
+        <h1>Creá tu cuenta</h1>
+        <p class="auth-sub">Para suscribirte a newsletters, seguir voces y ser parte de Mejores Amigos.</p>
+
+        <form id="signup-form" novalidate>
+            <div class="form-alert" id="form-alert" role="alert"></div>
+
+            <div class="form-row">
+                <div class="field" id="field-first">
+                    <label for="firstName">Nombre</label>
+                    <input class="input" type="text" id="firstName" autocomplete="given-name">
+                    <span class="field-error" id="err-first">Ingresá tu nombre.</span>
+                </div>
+                <div class="field" id="field-last">
+                    <label for="lastName">Apellido</label>
+                    <input class="input" type="text" id="lastName" autocomplete="family-name">
+                    <span class="field-error" id="err-last">Ingresá tu apellido.</span>
+                </div>
+            </div>
+
+            <div class="field" id="field-email">
+                <label for="email">Correo Electrónico</label>
+                <input class="input" type="email" id="email" autocomplete="email" placeholder="tucorreo@ejemplo.com">
+                <span class="field-error" id="err-email">Ingresá un correo electrónico válido.</span>
+            </div>
+
+            <div class="field" id="field-password">
+                <label for="password">Contraseña</label>
+                <input class="input" type="password" id="password" autocomplete="new-password">
+                <span class="field-error" id="err-password">La contraseña debe tener al menos 6 caracteres.</span>
+            </div>
+
+            <div class="field" id="field-confirm">
+                <label for="confirm">Confirmar contraseña</label>
+                <input class="input" type="password" id="confirm" autocomplete="new-password">
+                <span class="field-error" id="err-confirm">Las contraseñas no coinciden.</span>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg" id="submit-btn">Crear cuenta</button>
+        </form>
+
+        <p class="auth-alt"><a href="login.html">¿Ya tenés cuenta? Iniciá sesión</a></p>
+    </main>
+
+    <script src="app.js"></script>
+    <script>
+        var form = document.getElementById("signup-form");
+        var f = {
+            first: document.getElementById("firstName"),
+            last: document.getElementById("lastName"),
+            email: document.getElementById("email"),
+            password: document.getElementById("password"),
+            confirm: document.getElementById("confirm")
+        };
+        var alertEl = document.getElementById("form-alert");
+        var submitBtn = document.getElementById("submit-btn");
+
+        function setError(id, on) { document.getElementById("field-" + id).classList.toggle("has-error", on); }
+        function validEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            alertEl.className = "form-alert";
+
+            var checks = {
+                first: f.first.value.trim().length > 0,
+                last: f.last.value.trim().length > 0,
+                email: validEmail(f.email.value.trim()),
+                password: f.password.value.length >= 6,
+                confirm: f.confirm.value === f.password.value && f.confirm.value.length > 0
+            };
+            Object.keys(checks).forEach(function (k) { setError(k, !checks[k]); });
+
+            var allOk = Object.keys(checks).every(function (k) { return checks[k]; });
+            if (!allOk) {
+                alertEl.textContent = "Revisá los campos marcados antes de continuar.";
+                alertEl.classList.add("show");
+                return;
+            }
+
+            submitBtn.classList.add("is-loading");
+            setTimeout(function () {
+                var account = {
+                    firstName: f.first.value.trim(),
+                    lastName: f.last.value.trim(),
+                    email: f.email.value.trim()
+                };
+                // Guardamos la "cuenta" y abrimos sesión (sin backend).
+                localStorage.setItem("cenital.account", JSON.stringify(account));
+                window.Cenital.Auth.login(account);
+                window.location.href = "perfil.html";
+            }, 800);
+        });
+
+        if (window.Cenital.Auth.isLoggedIn()) window.location.href = "index.html";
+    </script>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iván Schargrodsky — Cenital</title>
+    <script>(function(){try{var t=localStorage.getItem('cenital.theme');if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-light" data-page="editoriales">
+
+    <div id="site-header"></div>
+
+    <main class="container">
+
+        <a href="index.html" class="back-link">&larr; Volver</a>
+
+        <!-- Perfil del autor (se rellena desde AUTHOR_PROFILES según ?id) -->
+        <section class="author-hero">
+            <div class="author-photo portrait photo" id="author-photo" role="img"></div>
+            <div>
+                <h1 class="author-name" id="author-name"></h1>
+                <p class="author-bio" id="author-bio"></p>
+                <div class="author-meta" id="author-meta"></div>
+                <div class="author-actions">
+                    <button class="btn btn-primary" id="follow-btn" data-following="false">+ Seguir voz</button>
+                    <span class="followers" id="follow-count"></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Última entrega -->
+        <section class="section">
+            <article class="card-dark card-split">
+                <div class="card-img bg-cover cs-img" id="le-img"></div>
+                <div class="card-body">
+                    <span class="eyebrow" id="le-eyebrow"></span>
+                    <h3 style="text-transform:none" id="le-title"></h3>
+                    <p id="le-text"></p>
+                    <span class="date" style="color:var(--navy-200)" id="le-date"></span>
+                    <a id="le-link" class="btn btn-primary btn-sm">Leer nota</a>
+                </div>
+            </article>
+        </section>
+
+        <!-- Banner Mejores Amigos (solo si el autor tiene un evento) -->
+        <section class="section" id="event-section" style="padding-top:0">
+            <div class="event-banner">
+                <div class="chevrons"></div>
+                <div class="event-avatar portrait photo" id="ev-avatar" role="img"></div>
+                <div class="event-text">
+                    <h3 id="ev-title"></h3>
+                    <p id="ev-text"></p>
+                </div>
+                <a href="amigos.html" class="btn btn-primary btn-lg">Sumate</a>
+            </div>
+        </section>
+
+        <!-- Programa de streaming (solo si el autor tiene uno) -->
+        <section class="section" id="videos-section" aria-labelledby="otr-title">
+            <div class="section-head">
+                <h2 class="section-title" id="otr-title">On the record</h2>
+                <a class="link-more" href="#">Ver más</a>
+            </div>
+            <div class="grid grid-3" id="otr-grid"></div>
+        </section>
+
+        <!-- También te puede interesar -->
+        <section class="section" aria-labelledby="rec-title">
+            <div class="section-head">
+                <h2 class="section-title" id="rec-title">También te puede interesar</h2>
+                <a class="link-more" href="descubrir.html">Ver más</a>
+            </div>
+            <div class="grid grid-4" id="rec-grid"></div>
+        </section>
+
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var D = window.CENITAL_DATA;
+
+            // Autor según ?id; las voces sin perfil caen al de schargrodsky.
+            var params = new URLSearchParams(window.location.search);
+            var id = params.get("id") || "schargrodsky";
+            var P = D.AUTHOR_PROFILES[id] || D.AUTHOR_PROFILES.schargrodsky;
+            id = P.id;
+
+            document.title = P.name + " — Cenital";
+
+            // --- Perfil ---
+            var photo = document.getElementById("author-photo");
+            photo.style.backgroundImage = "url('" + P.image + "')";
+            photo.setAttribute("aria-label", P.name);
+            document.getElementById("author-name").textContent = P.name;
+            document.getElementById("author-bio").innerHTML = P.bio;
+
+            var meta = ['<div><span class="m-title">Newsletters</span><span class="m-value">' + P.newsletters + '</span></div>'];
+            if (P.programa) meta.push('<div><span class="m-title">Programa</span><span class="m-value">' + P.programa + '</span></div>');
+            meta.push('<div><span class="m-title">Notas firmadas</span><span class="m-value">' + P.notas + '</span></div>');
+            document.getElementById("author-meta").innerHTML = meta.join("");
+
+            // --- Última entrega ---
+            var le = P.lastEntry;
+            document.getElementById("le-img").style.backgroundImage = "url('" + le.image + "')";
+            document.getElementById("le-eyebrow").textContent = le.eyebrow;
+            document.getElementById("le-title").textContent = le.title;
+            document.getElementById("le-text").textContent = le.text;
+            document.getElementById("le-date").textContent = le.date;
+            document.getElementById("le-link").href = le.href;
+
+            // --- Evento de Mejores Amigos (opcional) ---
+            if (P.event) {
+                var eva = document.getElementById("ev-avatar");
+                eva.style.backgroundImage = "url('" + P.image + "')";
+                eva.setAttribute("aria-label", P.name);
+                document.getElementById("ev-title").textContent = P.event.title;
+                document.getElementById("ev-text").textContent = P.event.text;
+            } else {
+                document.getElementById("event-section").remove();
+            }
+
+            // --- Programa de streaming / videos (opcional) ---
+            if (P.showVideos) {
+                document.getElementById("otr-grid").innerHTML = D.VIDEOS.map(function (v) {
+                    var thumb = v.image
+                        ? 'class="thumb bg-cover" style="background-image:url(\'' + v.image + '\')"'
+                        : 'class="thumb img-mono"';
+                    return '<article class="video-card">' +
+                        '<div ' + thumb + '><span class="badge">YouTube</span><span class="play">&#9654;</span></div>' +
+                        '<div class="card-body"><span class="date">' + v.show + '</span>' +
+                        '<h4>' + v.title + '</h4>' +
+                        '<a href="' + v.url + '" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">Ver video</a></div></article>';
+                }).join("");
+            } else {
+                document.getElementById("videos-section").remove();
+            }
+
+            // --- Recomendados (carrusel de las demás voces) ---
+            document.getElementById("rec-grid").innerHTML = D.VOICES.filter(function (v) {
+                return v.id !== id;
+            }).map(function (v) {
+                return '<a class="voice-result" href="editoriales.html?id=' + v.id + '">' +
+                    window.Cenital.portrait("vr-img", v) +
+                    '<div class="vr-body"><h3>' + v.name + '</h3><p class="vr-role">' + v.role + '</p>' +
+                    '<span class="tag tag-cat-' + v.category + '">' + D.categoryLabel(v.category) + '</span></div></a>';
+            }).join("");
+
+            // --- Seguir / dejar de seguir (persistido en preferencias) ---
+            var btn = document.getElementById("follow-btn");
+            var countEl = document.getElementById("follow-count");
+            var base = P.followers;
+            function sync() {
+                var prefs = window.Cenital.Prefs.get();
+                var following = prefs.followedAuthors.indexOf(id) !== -1;
+                btn.dataset.following = following;
+                btn.textContent = following ? "✓ Siguiendo" : "+ Seguir voz";
+                btn.classList.toggle("btn-primary", !following);
+                btn.classList.toggle("btn-secondary", following);
+                countEl.textContent = (base + (following ? 1 : 0)).toLocaleString("es-AR") + " lectores lo siguen";
+            }
+            btn.addEventListener("click", function () {
+                var prefs = window.Cenital.Prefs.get();
+                var set = prefs.followedAuthors;
+                var i = set.indexOf(id);
+                if (i === -1) set.push(id); else set.splice(i, 1);
+                window.Cenital.Prefs.set({ followedAuthors: set });
+                sync();
+            });
+            sync();
+        });
+    </script>
+</body>
+</html>

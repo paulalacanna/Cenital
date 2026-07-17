@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artículo — Cenital</title>
+    <script>(function(){try{var t=localStorage.getItem('cenital.theme');if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="articulo">
+
+    <div id="site-header"></div>
+
+    <main class="container" id="article-root">
+        <a href="javascript:history.back()" class="back-link">&larr; Volver</a>
+        <div id="article-content"></div>
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        try {
+            var D = window.CENITAL_DATA;
+            if (!D) { document.getElementById("article-content").innerHTML = '<p>Error: no se cargó data.js</p>'; return; }
+
+            var params = new URLSearchParams(window.location.search);
+            var id = params.get("id");
+            var article = null;
+            for (var i = 0; i < D.ARTICLES.length; i++) {
+                if (D.ARTICLES[i].id === id) { article = D.ARTICLES[i]; break; }
+            }
+
+            var root = document.getElementById("article-content");
+
+            if (!article) {
+                root.innerHTML = '<div class="placeholder-panel" style="margin-top:2rem">Artículo no encontrado. <a href="index.html" style="color:var(--text-link)">Volver al inicio</a></div>';
+                return;
+            }
+
+            document.title = article.title + " — Cenital";
+
+            var heroImg = article.image
+                ? '<div class="article-hero-img bg-cover" style="background-image:url(\'' + article.image + '\')"></div>'
+                : '<div class="article-hero-img img-mono"></div>';
+
+            var voice = D.voiceById(article.author);
+            var authorHtml = '';
+            if (voice) {
+                var photoHtml = voice.image
+                    ? '<div class="art-author-photo portrait photo" style="background-image:url(\'' + voice.image + '\')" role="img" aria-label="' + voice.name + '"></div>'
+                    : '<div class="art-author-photo portrait"><span class="initials">' + window.Cenital.initials(voice.name) + '</span></div>';
+                authorHtml = '<div class="article-author">' + photoHtml +
+                    '<div><span class="art-author-name">' + voice.name + '</span>' +
+                    '<span class="art-author-role">' + voice.role + '</span></div></div>';
+            } else if (article.author) {
+                authorHtml = '<div class="article-author"><div><span class="art-author-name">' + article.author + '</span></div></div>';
+            }
+
+            var bodyHtml;
+            if (article.content) {
+                // Cada bloque (separado por línea en blanco) puede ser un subtítulo
+                // de sección (## ...), una imagen embebida (![pie](ruta)) o un párrafo.
+                var blocks = article.content.split(/\n[\s]*\n/);
+                bodyHtml = blocks.map(function(p) {
+                    var t = p.trim();
+                    if (!t) return '';
+                    if (t.indexOf('## ') === 0) {
+                        return '<h2>' + t.slice(3).trim() + '</h2>';
+                    }
+                    var img = t.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+                    if (img) {
+                        var cap = img[1] ? '<figcaption>' + img[1] + '</figcaption>' : '';
+                        return '<figure class="article-figure">' +
+                            '<img src="' + img[2] + '" alt="' + img[1] + '" loading="lazy">' +
+                            cap + '</figure>';
+                    }
+                    // Cajita de apoyo/membresía (se inserta con el marcador [[apoyo]])
+                    if (t === '[[apoyo]]') {
+                        return '<aside class="article-support">' +
+                            '<p>¿Te sirve lo que leés? Cenital es posible gracias a quienes lo bancan. ' +
+                            'Sumate como miembro y ayudanos a seguir haciendo periodismo independiente.</p>' +
+                            '<a class="btn btn-primary btn-sm" href="amigos.html">Quiero sumarme</a>' +
+                            '</aside>';
+                    }
+                    return '<p>' + t + '</p>';
+                }).join('');
+            } else {
+                bodyHtml = '<div class="article-placeholder">' +
+                    '<p>El contenido de este artículo todavía no está cargado.</p>' +
+                    '<p>Abrí <strong>data.js</strong>, buscá <code>id: "' + article.id + '"</code> y agregá un campo <code>content</code> con el texto completo.</p>' +
+                    '<pre><code>content: `Primer párrafo.\n\nSegundo párrafo.`</code></pre>' +
+                    '</div>';
+            }
+
+            // Bio del autor al pie de la nota
+            var bioHtml = '';
+            if (voice) {
+                var bioPhoto = voice.image
+                    ? '<div class="ab-photo portrait photo" style="background-image:url(\'' + voice.image + '\')" role="img" aria-label="' + voice.name + '"></div>'
+                    : '<div class="ab-photo portrait"><span class="initials">' + window.Cenital.initials(voice.name) + '</span></div>';
+                bioHtml = '<aside class="article-bio">' + bioPhoto +
+                    '<div class="ab-text">' +
+                        '<span class="ab-name">' + voice.name + '</span>' +
+                        '<span class="ab-role">' + voice.role + '</span>' +
+                        (voice.bio ? '<p class="ab-bio">' + voice.bio + '</p>' : '') +
+                        '<a class="btn btn-primary btn-sm" href="editoriales.html?id=' + voice.id + '">Ver perfil</a>' +
+                    '</div></aside>';
+            }
+
+            root.innerHTML =
+                '<article class="article-layout">' +
+                    heroImg +
+                    '<div class="article-meta-top">' +
+                        '<span class="tag tag-cat-' + article.category + '">' + D.categoryLabel(article.category) + '</span>' +
+                        '<span class="article-newsletter">' + article.newsletter + '</span>' +
+                        '<span class="article-date">' + (article.readingTime || '') + '</span>' +
+                    '</div>' +
+                    '<h1 class="article-title">' + article.title + '</h1>' +
+                    '<p class="article-excerpt">' + article.excerpt + '</p>' +
+                    authorHtml +
+                    '<hr class="article-divider">' +
+                    '<div class="article-body">' + bodyHtml + '</div>' +
+                    bioHtml +
+                '</article>';
+
+            // Notas relacionadas: primero misma categoría, luego se completa con el
+            // resto para que el carrusel siempre tenga suficientes tarjetas para deslizar.
+            var related = D.ARTICLES.filter(function(a) {
+                return a.id !== article.id && a.category === article.category;
+            });
+            if (related.length < 6) {
+                var extra = D.ARTICLES.filter(function(a) {
+                    return a.id !== article.id && a.category !== article.category;
+                });
+                related = related.concat(extra);
+            }
+            related = related.slice(0, 8);
+
+            if (related.length) {
+                var cards = related.map(function(a) {
+                    var imgAttr = a.image
+                        ? 'class="card-img bg-cover" style="background-image:url(\'' + a.image + '\')"'
+                        : 'class="card-img img-mono"';
+                    return '<a class="article-card" href="articulo.html?id=' + a.id + '">' +
+                        '<div ' + imgAttr + '></div>' +
+                        '<div class="card-body">' +
+                            '<span class="tag tag-cat-' + a.category + '">' + D.categoryLabel(a.category) + '</span>' +
+                            '<h3>' + a.title + '</h3>' +
+                            '<p class="excerpt">' + a.excerpt + '</p>' +
+                            '<div class="meta"><span class="newsletter-name">' + a.newsletter + '</span>' +
+                            '<span>' + (a.readingTime || '') + '</span></div>' +
+                        '</div></a>';
+                }).join('');
+
+                document.getElementById("article-root").insertAdjacentHTML("beforeend",
+                    '<section class="section related-section">' +
+                        '<div class="section-head"><h2 class="section-title">También te puede interesar</h2></div>' +
+                        '<div class="related-carousel">' + cards + '</div>' +
+                    '</section>');
+            }
+
+        } catch(e) {
+            document.getElementById("article-content").innerHTML = '<p style="color:red">Error: ' + e.message + '</p>';
+        }
+    });
+    </script>
+</body>
+</html>

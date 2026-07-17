@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Especiales — Cenital</title>
+    <script>(function(){try{var t=localStorage.getItem('cenital.theme');if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-light" data-page="especiales">
+
+    <div id="site-header"></div>
+
+    <main class="container">
+
+        <section class="hero">
+            <h1>Especiales</h1>
+            <p class="lead">Coberturas en profundidad sobre los temas que marcan la agenda. Varias voces, un mismo tema, durante el tiempo que haga falta.</p>
+        </section>
+
+        <!-- Destacado -->
+        <section class="section" style="padding-top:0">
+            <article class="especial-feature">
+                <div class="ef-img bg-cover" style="background-image:url('imagenes/notas/esp-24m.jpg')"></div>
+                <div class="ef-body">
+                    <span class="tag tag-outline-red">Especial</span>
+                    <h2>Todavía entre nosotros</h2>
+                    <p>A 50 años del golpe del 76, lo que sigue vigente de la dictadura. Memoria, justicia y los debates que continúan abiertos.</p>
+                    <a href="especial.html?id=todavia" class="btn btn-primary">Entrar al especial</a>
+                </div>
+            </article>
+        </section>
+
+        <!-- En curso -->
+        <section class="section" aria-labelledby="curso-title">
+            <div class="section-head" style="display:block">
+                <h2 class="section-title title-dot" id="curso-title">En curso</h2>
+                <p class="section-sub">Especiales que se siguen actualizando.</p>
+            </div>
+            <div class="grid grid-3" id="encurso-grid"></div>
+        </section>
+
+        <!-- Archivo -->
+        <section class="section" aria-labelledby="archivo-title">
+            <div class="section-head" style="display:block">
+                <h2 class="section-title title-dot" id="archivo-title">Archivo</h2>
+                <p class="section-sub">Coberturas que ya cerraron, disponibles para leer.</p>
+            </div>
+            <div class="grid grid-3" id="archivo-grid"></div>
+            <div style="text-align:center;margin-top:var(--space-32)" id="ver-mas-wrap">
+                <button class="btn btn-ghost-light" id="ver-mas-especiales">Ver más especiales</button>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="section">
+            <div class="cta-dark">
+                <h2>Cada especial es el trabajo de <span class="accent2">varias voces</span></h2>
+                <a href="amigos.html" class="btn btn-primary btn-lg">Hacelo posible</a>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var D = window.CENITAL_DATA;
+            function card(s) {
+                var img = s.image
+                    ? 'class="em-img bg-cover" style="background-image:url(\'' + s.image + '\')"'
+                    : 'class="em-img img-mono"';
+                return '<a class="especial-mini" href="especial.html?id=' + s.id + '" style="text-decoration:none;color:inherit">' +
+                    '<div ' + img + '></div>' +
+                    '<div class="em-body"><span class="status">' + s.status + '</span>' +
+                    '<h3>' + s.title + '</h3>' +
+                    '<p class="em-desc">' + s.desc + '</p>' +
+                    '<span class="meta" style="font-size:var(--fs-caption);color:var(--text-tertiary);font-family:var(--font-body)">' + s.date + '</span>' +
+                    '</div></a>';
+            }
+            document.getElementById("encurso-grid").innerHTML =
+                D.SPECIALS.filter(function (s) { return s.status === "En curso"; }).map(card).join("");
+            document.getElementById("archivo-grid").innerHTML =
+                D.SPECIALS.filter(function (s) { return s.status === "Archivo"; }).map(card).join("");
+
+            // Especiales que no son ni "En curso" ni "Archivo" (p. ej. Vox Populi,
+            // El año del león) y que tampoco son el destacado de arriba ("todavia").
+            // Quedan ocultos hasta que el lector pide ver más.
+            var verMasBtn = document.getElementById("ver-mas-especiales");
+            var otros = D.SPECIALS.filter(function (s) {
+                return s.status !== "En curso" && s.status !== "Archivo" && s.id !== "todavia";
+            });
+            if (!otros.length) {
+                document.getElementById("ver-mas-wrap").remove();
+            } else {
+                verMasBtn.addEventListener("click", function () {
+                    document.getElementById("archivo-grid").insertAdjacentHTML("beforeend", otros.map(card).join(""));
+                    document.getElementById("ver-mas-wrap").remove();
+                });
+            }
+        });
+    </script>
+</body>
+</html>
